@@ -1,0 +1,68 @@
+---
+name: k3s
+
+instance_groups:
+- name: server
+  azs: ["null"]
+  instances: 1
+  vm_type: default
+  vm_extensions: [ docker-socket ]
+  stemcell: default
+  networks: [{name: network}]
+  jobs:
+  - { name: k3s-server,       release: k3s-wrapper }
+  - { name: k3s-packages,     release: k3s-packages }
+  - { name: pre-start-script, release: os-conf }
+  properties: &properties
+    k3s:
+      token: ((k3s-token))
+      disable-vxlan-hardware-options: []
+      node-labels: [ "using-docker --docker" ]
+    script: |
+      #!/bin/bash
+      exit 0
+      # mkdir -p /mnt/disks/docker-data/dockerd
+
+- name: worker
+  azs: ["null"]
+  instances: 1
+  vm_type: default
+  vm_extensions: [ docker-socket ]
+  stemcell: default
+  networks: [{name: network}]
+  jobs:
+  - { name: k3s-agent,        release: k3s-wrapper }
+  - { name: k3s-packages,     release: k3s-packages }
+  - { name: pre-start-script, release: os-conf }
+  properties: *properties
+
+
+
+variables:
+- name: k3s-token
+  type: password
+
+
+stemcells:
+- alias: default
+  os: ubuntu-jammy
+  version: latest
+
+update:
+  canaries: 1
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000
+  max_in_flight: 1
+  serial: false
+
+releases:
+- name: k3s-wrapper
+  version: 0.8.5
+  url: https://github.com/orange-cloudfoundry/k3s-wrapper-boshrelease/releases/download/v0.8.5/k3s-wrapper-0.8.5.tgz
+- name: k3s-packages
+  version: 1.31.1+k3s1
+  url: https://github.com/orange-cloudfoundry/k3s-packages-boshrelease/releases/download/1.31.1%2Bk3s1/k3s-packages-1.31.1+k3s1.tgz
+- name: os-conf
+  version: 22.3.0
+  url: https://bosh.io/d/github.com/cloudfoundry/os-conf-release?v=22.3.0
+  sha1: 0f88a29315d8d9f900bb30a81c0eaf6d34a61639
