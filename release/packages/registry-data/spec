@@ -1,0 +1,8 @@
+---
+name: registry-data
+
+dependencies: []
+
+files:
+- repositories/**/*
+- blobs/**/*

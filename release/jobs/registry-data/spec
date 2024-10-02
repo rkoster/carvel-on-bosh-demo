@@ -1,0 +1,9 @@
+---
+name: registry-data
+
+templates: {}
+
+packages:
+- registry-data
+
+properties: {}

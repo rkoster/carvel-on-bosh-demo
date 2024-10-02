@@ -1,42 +1,31 @@
 ---
-name: k3s
+name: carvel-on-bosh-demo
 
 instance_groups:
 - name: server
-  azs: ["null"]
+  azs: ((azs))
   instances: 1
-  vm_type: default
-  vm_extensions: [ docker-socket ]
+  vm_type: ((vm_type))
   stemcell: default
-  networks: [{name: network}]
+  networks: [{name: ((network))}]
   jobs:
   - { name: k3s-server,       release: k3s-wrapper }
   - { name: k3s-packages,     release: k3s-packages }
-  - { name: pre-start-script, release: os-conf }
+  - { name: registry-data,    release: registry-data }
   properties: &properties
     k3s:
       token: ((k3s-token))
-      disable-vxlan-hardware-options: []
-      node-labels: [ "using-docker --docker" ]
-    script: |
-      #!/bin/bash
-      exit 0
-      # mkdir -p /mnt/disks/docker-data/dockerd
 
 - name: worker
-  azs: ["null"]
+  azs: ((azs))
   instances: 1
-  vm_type: default
-  vm_extensions: [ docker-socket ]
+  vm_type: ((vm_type))
   stemcell: default
-  networks: [{name: network}]
+  networks: [{name: ((network))}]
   jobs:
   - { name: k3s-agent,        release: k3s-wrapper }
   - { name: k3s-packages,     release: k3s-packages }
-  - { name: pre-start-script, release: os-conf }
   properties: *properties
-
-
 
 variables:
 - name: k3s-token
@@ -62,7 +51,5 @@ releases:
 - name: k3s-packages
   version: 1.31.1+k3s1
   url: https://github.com/orange-cloudfoundry/k3s-packages-boshrelease/releases/download/1.31.1%2Bk3s1/k3s-packages-1.31.1+k3s1.tgz
-- name: os-conf
-  version: 22.3.0
-  url: https://bosh.io/d/github.com/cloudfoundry/os-conf-release?v=22.3.0
-  sha1: 0f88a29315d8d9f900bb30a81c0eaf6d34a61639
+- name: registry-data
+  version: latest

@@ -1,0 +1,5 @@
+set -e
+
+mkdir -p ${BOSH_INSTALL_TARGET}/docker/registry/v2
+
+cp -r {repositories,blobs} ${BOSH_INSTALL_TARGET}/docker/registry/v2/
