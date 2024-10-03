@@ -6,6 +6,7 @@ instance_groups:
   azs: ((azs))
   instances: 1
   vm_type: ((vm_type))
+  persistent_disk_type: 102400
   stemcell: default
   networks: [{name: ((network))}]
   jobs:
@@ -24,9 +25,7 @@ instance_groups:
         - domain: registry.bosh
           health_filter: "healthy"
         as: registry-address
-  properties: &properties
-    k3s:
-      token: ((k3s-token))
+  properties:
     docker:
       registry:
         bind: 0.0.0.0
@@ -35,7 +34,23 @@ instance_groups:
           cert: ((registry_tls.certificate))
           key: ((registry_tls.private_key))
         root: /var/vcap/packages/registry-data
-
+    k3s:
+      token: ((k3s-token))
+      additional-manifests:
+      - |
+          apiVersion: v1
+          kind: Namespace
+          metadata:
+            name: kapp-controller
+      # - |
+      #     apiVersion: v1
+      #     kind: Secret
+      #       metadata:
+      #       name: kapp-controller-config
+      #       namespace: kapp-controller
+      #     stringData:
+      #       caCerts: |
+      #         ((registry_tls.ca))
 - name: worker
   azs: ((azs))
   instances: 1
@@ -45,7 +60,9 @@ instance_groups:
   jobs:
   - { name: k3s-agent,        release: k3s-wrapper }
   - { name: k3s-packages,     release: k3s-packages }
-  properties: *properties
+  properties:
+    k3s:
+      token: ((k3s-token))
 
 variables:
 - name: k3s-token
