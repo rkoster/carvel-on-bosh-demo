@@ -12,9 +12,29 @@ instance_groups:
   - { name: k3s-server,       release: k3s-wrapper }
   - { name: k3s-packages,     release: k3s-packages }
   - { name: registry-data,    release: registry-data }
+  - name: registry
+    release: docker-registry
+    custom_provider_definitions:
+    - name: registry
+      type: address
+      shared: true
+    provides:
+      registry:
+        aliases:
+        - domain: registry.bosh
+          health_filter: "healthy"
+        as: registry-address
   properties: &properties
     k3s:
       token: ((k3s-token))
+    docker:
+      registry:
+        bind: 0.0.0.0
+        port: 5000
+        ssl:
+          cert: ((registry_tls.certificate))
+          key: ((registry_tls.private_key))
+        root: /var/vcap/packages/registry-data
 
 - name: worker
   azs: ((azs))
@@ -30,7 +50,23 @@ instance_groups:
 variables:
 - name: k3s-token
   type: password
-
+- name: registry_ca
+  type: certificate
+  update_mode: converge
+  options:
+    common_name: ca
+    is_ca: true
+- name: registry_tls
+  type: certificate
+  update_mode: converge
+  options:
+    ca: registry_ca
+    alternative_names:
+    - "localhost"
+    common_name: registry.bosh
+  consumes:
+    alternative_name:
+      from: registry-address
 
 stemcells:
 - alias: default
@@ -51,5 +87,9 @@ releases:
 - name: k3s-packages
   version: 1.31.1+k3s1
   url: https://github.com/orange-cloudfoundry/k3s-packages-boshrelease/releases/download/1.31.1%2Bk3s1/k3s-packages-1.31.1+k3s1.tgz
+- name:    docker-registry
+  version: 3.6.0
+  url:     https://github.com/cloudfoundry-community/docker-registry-boshrelease/releases/download/v3.6.0/docker-registry-3.6.0.tgz
+  sha1:    2f09ca4f50c0129fdb8a7b84fe6d74b085c109c4
 - name: registry-data
   version: latest
