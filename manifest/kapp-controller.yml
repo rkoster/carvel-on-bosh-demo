@@ -1,13 +1,13 @@
 # https://github.com/carvel-dev/kapp-controller/releases/latest/download/release.yml
 # yq ea '[{"type": "replace", "path": "/instance_groups/name=server/properties/k3s/additional-manifests/-", "value": .}]' ~/Downloads/release.yml  | pbcopy
 
-# - type: replace
-#   path: /instance_groups/name=server/properties/k3s/additional-manifests/-
-#   value: |
-#     apiVersion: v1
-#     kind: Namespace
-#     metadata:
-#       name: kapp-controller
+- type: replace
+  path: /instance_groups/name=server/properties/k3s/additional-manifests/-
+  value: |
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: kapp-controller
 - type: replace
   path: /instance_groups/name=server/properties/k3s/additional-manifests/-
   value: |
