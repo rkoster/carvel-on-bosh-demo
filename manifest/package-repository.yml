@@ -1,0 +1,20 @@
+- type: replace
+  path: /instance_groups/name=server/properties/k3s/additional-manifests/-
+  value: |
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: app-ns
+
+- type: replace
+  path: /instance_groups/name=server/properties/k3s/additional-manifests/-
+  value: |
+    apiVersion: packaging.carvel.dev/v1alpha1
+    kind: PackageRepository
+    metadata:
+      name: carvel.garnier.wf
+      namespace: app-ns
+    spec:
+      fetch:
+        imgpkgBundle:
+          image: registry.bosh:5000/repo@sha256:5fb39deab2298aac206549cd95d023c4095ccdbefcfc376c5486b6df48d2f000

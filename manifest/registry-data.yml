@@ -1,0 +1,11 @@
+- type: replace
+  path: /instance_groups/name=server/jobs/-
+  value: { name: registry-data, release: registry-data }
+
+- type: replace
+  path: /instance_groups/name=server/properties/docker/registry/root?
+  value: /var/vcap/packages/registry-data
+
+- type: replace
+  path: /releases/-
+  value: { name: registry-data, version: latest }

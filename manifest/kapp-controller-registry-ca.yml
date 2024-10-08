@@ -1,0 +1,25 @@
+- type: replace
+  path: /instance_groups/name=server/jobs/-
+  value: { name: pre-start-script, release: os-conf }
+
+- type: replace
+  path: /instance_groups/name=server/properties/script?
+  value: |
+    #!/bin/bash
+
+    mkdir -p /var/vcap/store/k3s-server/server/manifests
+    cat << EOF > /var/vcap/store/k3s-server/server/manifests/registry-ca.yaml
+    ---
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: kapp-controller-config
+      namespace: kapp-controller
+    stringData:
+      caCerts: |
+    EOF
+
+    # Fix certificate indentation
+    sed 's/^/    /g' >> /var/vcap/store/k3s-server/server/manifests/registry-ca.yaml  <<EOF
+    ((registry_tls.ca))
+    EOF

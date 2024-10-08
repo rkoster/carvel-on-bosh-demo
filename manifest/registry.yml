@@ -1,0 +1,95 @@
+- type: replace
+  path: /instance_groups/name=server/jobs/-
+  value:
+    name: registry
+    release: docker-registry
+    custom_provider_definitions:
+    - name: registry
+      type: address
+      shared: true
+    provides:
+      registry:
+        aliases:
+        - domain: registry.bosh
+          health_filter: all
+        as: registry-address
+
+- type: replace
+  path: /instance_groups/name=server/properties/docker?
+  value:
+    registry:
+      bind: 0.0.0.0
+      port: 5000
+      ssl:
+        cert: ((registry_tls.certificate))
+        key: ((registry_tls.private_key))
+
+- type: replace
+  path: /instance_groups/name=server/properties/certs?
+  value: ((registry_tls.ca))
+
+- type: replace
+  path: /instance_groups/name=worker/properties/certs?
+  value: ((registry_tls.ca))
+
+- type: replace
+  path: /instance_groups/name=server/jobs/-
+  value: { name: ca_certs, release: os-conf }
+
+- type: replace
+  path: /instance_groups/name=worker/jobs/-
+  value: { name: ca_certs, release: os-conf }
+
+- type: replace
+  path: /instance_groups/name=server/properties/k3s/additional-manifests?/-
+  value: |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: coredns-custom
+      namespace: kube-system
+    data:
+      forward.override: |
+        forward registry.bosh 169.254.169.254
+
+- type: replace
+  path: /variables/-
+  value:
+    name: registry_ca
+    type: certificate
+    update_mode: converge
+    options:
+      common_name: ca
+      is_ca: true
+
+- type: replace
+  path: /variables/-
+  value:
+    name: registry_tls
+    type: certificate
+    update_mode: converge
+    options:
+      ca: registry_ca
+      alternative_names:
+      - localhost
+      - registry.bosh
+      common_name: registry-bosh
+    consumes:
+      alternative_name:
+        from: registry-address
+
+- type: replace
+  path: /releases/-
+  value:
+    name:    docker-registry
+    version: 3.6.0
+    url:     https://github.com/cloudfoundry-community/docker-registry-boshrelease/releases/download/v3.6.0/docker-registry-3.6.0.tgz
+    sha1:    2f09ca4f50c0129fdb8a7b84fe6d74b085c109c4
+
+- type: replace
+  path: /releases/-
+  value:
+    name: os-conf
+    version: 22.3.0
+    url: https://bosh.io/d/github.com/cloudfoundry/os-conf-release?v=22.3.0
+    sha1: 0f88a29315d8d9f900bb30a81c0eaf6d34a61639

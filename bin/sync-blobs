@@ -7,10 +7,12 @@ rm -rf "${registry_dir}"; mkdir -p "${registry_dir}"
 
 export REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY="${registry_dir}"
 export REGISTRY_HTTP_ADDR="localhost:5000"
+set -x
 registry serve <(echo "version: 0.1") &
 
 imgpkg copy --bundle index.docker.io/dgarnier963/carvel-package-repository@sha256:5fb39deab2298aac206549cd95d023c4095ccdbefcfc376c5486b6df48d2f000 \
        --to-repo localhost:5000/repo
+set +x
 
 killall registry
 
@@ -25,12 +27,6 @@ bosh blobs | cut -f1 | xargs -I {} bosh remove-blob "{}"
 echo "{}" > config/blobs.yml
 rm -rf src/registry
 
+set -x
 echo "${blobs}" | xargs -I {} bosh add-blob "${registry_dir}/docker/registry/v2/{}" {}
 echo "${repositories}" | xargs -I {} bash -c 'mkdir -p src/$(dirname {}) && cp /tmp/registry/docker/registry/v2/{} $(dirname src/{})/'
-
-# bosh generate-package carvel-package
-
-# echo -e "---\nname: carvel-package\n\ndependencies: []\n\nfiles:\n- repo/*"            > "packages/carvel-package/spec"
-
-# echo -e 'set -e\n\nmkdir -p ${BOSH_INSTALL_TARGET}/repo/\n'                            > "packages/carvel-package/packaging"
-# echo -e "cp repo/* \${BOSH_INSTALL_TARGET}/repo/\n"                                   >> "packages/carvel-package/packaging"

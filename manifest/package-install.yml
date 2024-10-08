@@ -1,0 +1,72 @@
+- type: replace
+  path: /instance_groups/name=server/properties/k3s/additional-manifests/-
+  value: |
+    apiVersion: v1
+    kind: ServiceAccount
+    metadata:
+      name: cfday-pkgi-install-sa
+      namespace: app-ns
+
+- type: replace
+  path: /instance_groups/name=server/properties/k3s/additional-manifests/-
+  value: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRole
+    metadata:
+      name: cfday-pkgi-install-role
+    rules:
+    - apiGroups:
+      - '*'
+      resources:
+      - '*'
+      verbs:
+      - '*'
+
+- type: replace
+  path: /instance_groups/name=server/properties/k3s/additional-manifests/-
+  value: |
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: ClusterRoleBinding
+    metadata:
+      name: cfday-pkgi-install-binding
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: cfday-pkgi-install-role
+    subjects:
+    - kind: ServiceAccount
+      name: cfday-pkgi-install-sa
+      namespace: app-ns
+
+- type: replace
+  path: /instance_groups/name=server/properties/k3s/additional-manifests/-
+  value: |
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: cfday-pkgi-values
+      namespace: app-ns
+    stringData:
+      values.yaml: |
+        channel: app-crd
+        domains:
+        - app-echo
+        namespace: app-ns
+
+- type: replace
+  path: /instance_groups/name=server/properties/k3s/additional-manifests/-
+  value: |
+    apiVersion: packaging.carvel.dev/v1alpha1
+    kind: PackageInstall
+    metadata:
+      name: cfday-pkgi
+      namespace: app-ns
+    spec:
+      packageRef:
+        refName: carvel.garnier.wf
+        versionSelection:
+          constraints: 1.0.0
+      serviceAccountName: cfday-pkgi-install-sa
+      values:
+      - secretRef:
+          name: cfday-pkgi-values
