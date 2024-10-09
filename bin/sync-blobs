@@ -6,12 +6,12 @@ registry_dir=/tmp/registry
 rm -rf "${registry_dir}"; mkdir -p "${registry_dir}"
 
 export REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY="${registry_dir}"
-export REGISTRY_HTTP_ADDR="localhost:5000"
+export REGISTRY_HTTP_ADDR="localhost:6000"
 set -x
 registry serve <(echo "version: 0.1") &
 
 imgpkg copy --bundle index.docker.io/dgarnier963/carvel-package-repository@sha256:5fb39deab2298aac206549cd95d023c4095ccdbefcfc376c5486b6df48d2f000 \
-       --to-repo localhost:5000/repo
+       --to-repo localhost:6000/repo
 set +x
 
 killall registry

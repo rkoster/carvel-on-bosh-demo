@@ -109,6 +109,8 @@ Deploy the app from the prequel with bosh
 <!-- column: 0 -->
 
 ```yaml
+# org:  cloudfoundry-community
+# repo: docker-registry-boshrelease
 instance_groups:
 - jobs:
   - { name: ca_certs, release: os-conf }
@@ -342,12 +344,14 @@ Future improvements
 
 - Simplify image -> bosh release flow by creating wrapper cli
   - imgpkg + distribition (registry) + bosh add-blob
+<!-- new_lines: 0 -->  
 - Simplify installing kapp-controller with trusted registy ca
   - wrap kapp-controller in bosh job so ca can be rendered using erb
   - additionally add support for airgapped installs by pre-loading the images
+<!-- new_lines: 0 -->    
 - Support zero downtime updates
   - Copy all blobs and metadata into persistent disk in pre-start
-  - Add cron job to delete images which do not exist in registry-data package and not being referenced by currently deployed workloads
+  - Add cron job to delete images which do not exist in registry-data package and are not not being referenced by currently deployed workloads
 
 <!-- end_slide -->
 
@@ -360,6 +364,25 @@ Thank you!
 
 **https://github.com/rkoster/carvel-on-bosh-demo**
 
+```
+█████████████████████████████████
+██ ▄▄▄▄▄ █ ▄▄ ██ █▄ ██▀█ ▄▄▄▄▄ ██
+██ █   █ ██▄█▀▀ ▀▀█ ▀▀██ █   █ ██
+██ █▄▄▄█ █ ▀▀▄  ▄█▀▄▀█▀█ █▄▄▄█ ██
+██▄▄▄▄▄▄▄█ ▀▄█▄█▄▀ █▄▀▄█▄▄▄▄▄▄▄██
+██▄  ██ ▄▀▄▄█▄ ▀█▀ ██▀    ▄██  ██
+██ ▀▄█▀▀▄▄█▄ ▀ █▀▄▀▄▀ ▄▀▄▄  ▄█▄██
+██▀█▀▀▀▀▄█   █▄█▀▀▄█▀ ▀█  ███▀ ██
+███▀ ▄▀ ▄▀▄ ▀ ▄█ ▄ █▄ ▀▄  ▄███▄██
+██▄▄▀▄▄▀▄▄▀▀██▄▀█▀ ▀▄▀▄▄ ▀██▀▀ ██
+██▄▄▄ █ ▄▄██  ▀▄▄▄▀█▀▄▀█▀█ ▄██▄██
+██▄▄▄▄█▄▄▄ ▄ ▀ ▀▄  ███ ▄▄▄  ▀▄▀██
+██ ▄▄▄▄▄ █▀▄ ▄▀▄▀  █ ▀ █▄█ ██▀ ██
+██ █   █ ██ █▀ ██ ▀██   ▄▄  ▀█▀██
+██ █▄▄▄█ █ █▄▄▀▄█ ▄▄ █▀▄█▀ ▀█▄▄██
+██▄▄▄▄▄▄▄█▄█▄▄▄██▄████▄███▄▄██▄██
+█████████████████████████████████
+```
 
 <!-- column: 1 -->
 
